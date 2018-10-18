@@ -1,5 +1,8 @@
-//生成16进制数字组成的字符串,规则可以任意
-function createUUID(params) {
+/**
+ * 生成16进制数字组成的字符串,规则可以任意
+ * @return {String} 
+ */
+function createUUID() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         var r = Math.random() * 16 | 0;//向下取整，利用位运算只不支持浮点数，默认转为整数
         var v = c === 'x' ? r : (r & 0x3 | 0x8);
@@ -7,7 +10,14 @@ function createUUID(params) {
     })
 }
 
-//延迟函数执行，对于频繁事件触发起到很好的作用，提高性能
+
+/**
+ * 延迟函数执行，对于频繁事件触发起到很好的作用，提高性能
+ * @param {Function} func 回调函数
+ * @param {Number} wait 延迟时间
+ * @param {Boolean} immediate 是否延迟
+ * @return {Function}
+ */
 function debounce(func, wait, immediate) {
     var timeout;
     return function () {
@@ -17,13 +27,18 @@ function debounce(func, wait, immediate) {
             timeout = null;
             if (!immediate) func.apply(context, args);
         };
-        let callNow = immediate && !timeout;
+        var callNow = immediate && !timeout;
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
         if (callNow) func.apply(context, args);
     }
 }
-//获取cookie
+
+/**
+ * 获取cookie
+ * @param {String} n 获取的key 
+ * @return {String} 对应的value
+ */
 function getCookie(n) {
     var a, r = new RegExp("(^| )" + n + "=([^;]*)(;|$)");
     if (a = document.cookie.match(r)) {
@@ -31,7 +46,11 @@ function getCookie(n) {
     }
     return null;
 }
-//获取query
+/**
+ * 获取query
+ * @param {String} n 获取的key 
+ * @return {String} 对应的value
+ */
 function getQuery(n) {
     var a, r = new RegExp("(\\?|\\&)" + n + "=([^\\&]*)(\\&|$)");
     if (a = window.location.href.match(r)) {
@@ -39,7 +58,14 @@ function getQuery(n) {
     }
     return null;
 }
-// 按照指定格式格式化指定时间
+
+/**
+ * 按照指定格式格式化指定时间
+ * 
+ * @param {Date} t 时间对象 
+ * @param {String} str 需要的日期格式
+ * @return {String} 格式化后的日期字符串
+ */
 function formatDate(t, str) {
     var obj = {
         yyyy: t.getFullYear(),//返回年份
@@ -60,17 +86,51 @@ function formatDate(t, str) {
     };
     return str.replace(/([a-z]+)/ig, function ($1) { return obj[$1] }); //依次更改匹配到的连着的字符串
 }
-// 求数组的交集
-Array.prototype.interset = function (b) {
-    var flip = {};
-    var res = [];
-    for(var i = 0; i<b.length; i++){
-        flip[b[i]] = i;
+/**
+ * 加入收藏夹函数
+ * 这个方法能兼容IE和FF，其他浏览器中会提示Ctrl+D收藏当前页面
+ * @param {String} url 收藏目标url
+ * @param {String} title 收藏夹中显示的名称
+ * @return null
+ */
+function AddFavorite(url, title) {
+    try {
+        window.external.addFavorite(url, title);
     }
-    for(i=0;i<this.length;i++){
-        if(flip[this[i]] !=undefined){
-            res.push(this[i])
-            return res;
+    catch (e) {
+        try {
+            window.sidebar.addPanel(title, url, "");
         }
+        catch (e) {
+            alert("抱歉，您所使用的浏览器无法完成此操作。\n\n加入收藏失败，请使用Ctrl+D进行添加");
+        }
+    }
+}
+
+/** 
+ * 设置首页函数
+ * 
+ * @param {String} url 设置为浏览器首页的目标站点URL
+ * @return null
+*/
+function setHomepage(url) {
+    if (!url) {
+        url = "http://" + document.location.host + "/";
+    }
+    if (document.all) {
+        document.body.style.behavior = 'url(#default#homepage)';
+        document.body.setHomePage(url);
+    } else if (window.sidebar) {
+        if (window.netscape) {
+            try {
+                netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+            } catch (e) {
+                alert("该操作被浏览器拒绝，如果想启用该功能，请在地址栏内输入 about:config,然后将项 signed.applets.codebase_principal_support 值该为true");
+            }
+        }
+        var prefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch);
+        prefs.setCharPref('browser.startup.homepage', url);
+    } else {
+        alert("设置首页失败，请手动进行设置!");
     }
 }
