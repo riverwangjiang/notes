@@ -47,9 +47,26 @@ function getCookie(n) {
     return null;
 }
 /**
+ * 设置cookie值，键值对：(name:value),过期时间：Hours
+ * 
+ * @param {String} name 设置的key
+ * @param {String} value 设置的value
+ * @param {String} Hours 失效时间，单位小时
+ * @return null 
+ */
+function setCookie(name, value, Hours) {
+    var d = new Date();
+    var offset = 8;
+    var utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+    var nd = utc + (3600000 * offset);
+    var exp = new Date(nd);
+    exp.setTime(exp.getTime() + Hours * 60 * 60 * 1000);
+    document.cookie = name + "=" + escape(value) + ";path=/;expires=" + exp.toGMTString() + ";domain=360doc.com;"
+}
+/**
  * 获取query
  * @param {String} n 获取的key 
- * @return {String} 对应的value
+ * @return {String} 对应的value,获取不到返回null
  */
 function getQuery(n) {
     var a, r = new RegExp("(\\?|\\&)" + n + "=([^\\&]*)(\\&|$)");
